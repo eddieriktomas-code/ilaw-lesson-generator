@@ -55,7 +55,7 @@ if st.button("✨ Generate ILAW Lesson Exemplar", type="primary"):
             try:
                 # Initialize Gemini Model
                 genai.configure(api_key=api_key)
-                model = genai.GenerativeModel('gemini-pro')
+                model = genai.GenerativeModel('gemini-3.5-flash')
                 
                 # Construct System Prompt with ILAW Framework instructions
                 prompt = f"""
