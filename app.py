@@ -7,11 +7,7 @@ import io
 import json
 
 # Page Configuration
-st.set_page_config(
-    page_title="Universal Master Lesson Package Generator",
-    page_icon="📚",
-    layout="wide"
-)
+st.set_page_config(page_title="Universal Master Lesson Package Generator", page_icon="📚", layout="wide")
 
 # Title & Description
 st.title("📚 Universal Master Lesson Package Generator")
@@ -71,12 +67,7 @@ if st.button("🚀 Generate Multi-Discipline Lesson Package Assets", type="prima
         with st.spinner("🧠 Engineering specialized content structures... This takes a moment due to text density..."):
             try:
                 genai.configure(api_key=api_key)
-                
-                # Setup model structure configuration
-                model = genai.GenerativeModel(
-                    model_name='gemini-1.5-flash',
-                    generation_config={"response_mime_type": "application/json"}
-                )
+                model = genai.GenerativeModel(model_name='gemini-1.5-flash', generation_config={"response_mime_type": "application/json"})
                 
                 user_prompt = f"Subject: {subject_area}\nGrade Level: {grade_level}\nTopic: {topic}\nClass Size: {class_size}\n"
                 user_prompt += """
@@ -112,94 +103,4 @@ if st.button("🚀 Generate Multi-Discipline Lesson Package Assets", type="prima
                         {"cue": "Core Idea 6", "content": "Three or more rigorous sentences outlining technical facts, functional paradigms, or rules governing this topic.", "summary": "One sentence synthesis statement."},
                         {"cue": "Core Idea 7", "content": "Three or more rigorous sentences outlining technical facts, functional paradigms, or rules governing this topic.", "summary": "One sentence synthesis statement."},
                         {"cue": "Core Idea 8", "content": "Three or more rigorous sentences outlining technical facts, functional paradigms, or rules governing this topic.", "summary": "One sentence synthesis statement."},
-                        {"cue": "Core Idea 9", "content": "Three or more rigorous sentences outlining technical facts, functional paradigms, or rules governing this topic.", "summary": "One sentence synthesis statement."},
-                        {"cue": "Core Idea 10", "content": "Three or more rigorous sentences outlining technical facts, functional paradigms, or rules governing this topic.", "summary": "One sentence synthesis statement."}
-                    ],
-                    "glossary": [
-                        {"term": "Term 1", "definition": "A high-density, precise definition spanning exactly two academic sentences."},
-                        {"term": "Term 2", "definition": "A high-density, precise definition spanning exactly two academic sentences."},
-                        {"term": "Term 3", "definition": "A high-density, precise definition spanning exactly two academic sentences."},
-                        {"term": "Term 4", "definition": "A high-density, precise definition spanning exactly two academic sentences."},
-                        {"term": "Term 5", "definition": "A high-density, precise definition spanning exactly two academic sentences."},
-                        {"term": "Term 6", "definition": "A high-density, precise definition spanning exactly two academic sentences."},
-                        {"term": "Term 7", "definition": "A high-density, precise definition spanning exactly two academic sentences."},
-                        {"term": "Term 8", "definition": "A high-density, precise definition spanning exactly two academic sentences."},
-                        {"term": "Term 9", "definition": "A high-density, precise definition spanning exactly two academic sentences."},
-                        {"term": "Term 10", "definition": "A high-density, precise definition spanning exactly two academic sentences."},
-                        {"term": "Term 11", "definition": "A high-density, precise definition spanning exactly two academic sentences."},
-                        {"term": "Term 12", "definition": "A high-density, precise definition spanning exactly two academic sentences."},
-                        {"term": "Term 13", "definition": "A high-density, precise definition spanning exactly two academic sentences."},
-                        {"term": "Term 14", "definition": "A high-density, precise definition spanning exactly two academic sentences."},
-                        {"term": "Term 15", "definition": "A high-density, precise definition spanning exactly two academic sentences."}
-                    ],
-                    "assessments": [
-                        {"day": 1, "q": "A unique full sentence identification question testing factual knowledge item 1.", "a": "Answer1"},
-                        {"day": 1, "q": "A unique full sentence identification question testing factual knowledge item 2.", "a": "Answer2"},
-                        {"day": 1, "q": "A unique full sentence identification question testing factual knowledge item 3.", "a": "Answer3"},
-                        {"day": 1, "q": "A unique full sentence identification question testing factual knowledge item 4.", "a": "Answer4"},
-                        {"day": 1, "q": "A unique full sentence identification question testing factual knowledge item 5.", "a": "Answer5"},
-                        {"day": 1, "q": "A unique full sentence identification question testing factual knowledge item 6.", "a": "Answer6"},
-                        {"day": 1, "q": "A unique full sentence identification question testing factual knowledge item 7.", "a": "Answer7"},
-                        {"day": 1, "q": "A unique full sentence identification question testing factual knowledge item 8.", "a": "Answer8"},
-                        {"day": 1, "q": "A unique full sentence identification question testing factual knowledge item 9.", "a": "Answer9"},
-                        {"day": 1, "q": "A unique full sentence identification question testing factual knowledge item 10.", "a": "Answer10"},
-                        {"day": 2, "q": "A unique full sentence identification question testing factual knowledge item 11.", "a": "Answer11"},
-                        {"day": 2, "q": "A unique full sentence identification question testing factual knowledge item 12.", "a": "Answer12"},
-                        {"day": 2, "q": "A unique full sentence identification question testing factual knowledge item 13.", "a": "Answer13"},
-                        {"day": 2, "q": "A unique full sentence identification question testing factual knowledge item 14.", "a": "Answer14"},
-                        {"day": 2, "q": "A unique full sentence identification question testing factual knowledge item 15.", "a": "Answer15"},
-                        {"day": 2, "q": "A unique full sentence identification question testing factual knowledge item 16.", "a": "Answer16"},
-                        {"day": 2, "q": "A unique full sentence identification question testing factual knowledge item 17.", "a": "Answer17"},
-                        {"day": 2, "q": "A unique full sentence identification question testing factual knowledge item 18.", "a": "Answer18"},
-                        {"day": 2, "q": "A unique full sentence identification question testing factual knowledge item 19.", "a": "Answer19"},
-                        {"day": 2, "q": "A unique full sentence identification question testing factual knowledge item 20.", "a": "Answer20"},
-                        {"day": 3, "q": "A unique full sentence identification question testing factual knowledge item 21.", "a": "Answer21"},
-                        {"day": 3, "q": "A unique full sentence identification question testing factual knowledge item 22.", "a": "Answer22"},
-                        {"day": 3, "q": "A unique full sentence identification question testing factual knowledge item 23.", "a": "Answer23"},
-                        {"day": 3, "q": "A unique full sentence identification question testing factual knowledge item 24.", "a": "Answer24"},
-                        {"day": 3, "q": "A unique full sentence identification question testing factual knowledge item 25.", "a": "Answer25"},
-                        {"day": 3, "q": "A unique full sentence identification question testing factual knowledge item 26.", "a": "Answer26"},
-                        {"day": 3, "q": "A unique full sentence identification question testing factual knowledge item 27.", "a": "Answer27"},
-                        {"day": 3, "q": "A unique full sentence identification question testing factual knowledge item 28.", "a": "Answer28"},
-                        {"day": 3, "q": "A unique full sentence identification question testing factual knowledge item 29.", "a": "Answer29"},
-                        {"day": 3, "q": "A unique full sentence identification question testing factual knowledge item 30.", "a": "Answer30"},
-                        {"day": 4, "q": "A unique full sentence identification question testing factual knowledge item 31.", "a": "Answer31"},
-                        {"day": 4, "q": "A unique full sentence identification question testing factual knowledge item 32.", "a": "Answer32"},
-                        {"day": 4, "q": "A unique full sentence identification question testing factual knowledge item 33.", "a": "Answer33"},
-                        {"day": 4, "q": "A unique full sentence identification question testing factual knowledge item 34.", "a": "Answer34"},
-                        {"day": 4, "q": "A unique full sentence identification question testing factual knowledge item 35.", "a": "Answer35"},
-                        {"day": 4, "q": "A unique full sentence identification question testing factual knowledge item 36.", "a": "Answer36"},
-                        {"day": 4, "q": "A unique full sentence identification question testing factual knowledge item 37.", "a": "Answer37"},
-                        {"day": 4, "q": "A unique full sentence identification question testing factual knowledge item 38.", "a": "Answer38"},
-                        {"day": 4, "q": "A unique full sentence identification question testing factual knowledge item 39.", "a": "Answer39"},
-                        {"day": 4, "q": "A unique full sentence identification question testing factual knowledge item 40.", "a": "Answer40"},
-                        {"day": 5, "q": "A unique full sentence identification question testing factual knowledge item 41.", "a": "Answer41"},
-                        {"day": 5, "q": "A unique full sentence identification question testing factual knowledge item 42.", "a": "Answer42"},
-                        {"day": 5, "q": "A unique full sentence identification question testing factual knowledge item 43.", "a": "Answer43"},
-                        {"day": 5, "q": "A unique full sentence identification question testing factual knowledge item 44.", "a": "Answer44"},
-                        {"day": 5, "q": "A unique full sentence identification question testing factual knowledge item 45.", "a": "Answer45"},
-                        {"day": 5, "q": "A unique full sentence identification question testing factual knowledge item 46.", "a": "Answer46"},
-                        {"day": 5, "q": "A unique full sentence identification question testing factual knowledge item 47.", "a": "Answer47"},
-                        {"day": 5, "q": "A unique full sentence identification question testing factual knowledge item 48.", "a": "Answer48"},
-                        {"day": 5, "q": "A unique full sentence identification question testing factual knowledge item 49.", "a": "Answer49"},
-                        {"day": 5, "q": "A unique full sentence identification question testing factual knowledge item 50.", "a": "Answer50"}
-                    ],
-                    "article_1": {
-                        "title": "Contextualized title exploring this topic inside Philippine societal framework, communities, or relevant national agencies",
-                        "body": "A complete academic narrative of 200-300 words analyzing the real-world utility or cultural connections of this topic in the Philippines."
-                    },
-                    "article_2": {
-                        "title": "A second title highlighting localized case examples, national policies, or community impacts across the archipelago",
-                        "body": "A complete contextual essay of 200-300 words devoid of placeholders detailing the practical application of this topic nationally."
-                    }
-                }
-                """
-                
-                response = model.generate_content(contents=user_prompt)
-                raw_data = json.loads(clean_json_response(response.text))
-                
-                # --- FILE 1: MASTER_LESSON_PACKAGE.XLSX ---
-                wb = openpyxl.Workbook()
-                
-                # Sheet layout styles
-                font_title = Font(name="Calibri", size=14,
+                        {"cue": "Core Idea 9", "content": "Three or more rigorous sentences outlining technical facts, functional paradigms, or rules governing
