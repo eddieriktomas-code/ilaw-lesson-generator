@@ -1,48 +1,36 @@
 import streamlit as st
 import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
-from fpdf import FPDF
 import google.generativeai as genai
 import io
 import json
 
 # Page Configuration
-st.set_page_config(page_title="Universal Master Lesson Package Generator", page_icon="📚", layout="wide")
+st.set_page_config(page_title="Jenalyn's Master Lesson Plan Generator", page_icon="📚", layout="wide")
 
-# Title & Description
-st.title("📚 Universal Master Lesson Package Generator")
-st.caption("Automated generation of data-dense Master Lesson Packages (Excel + PDF) across all DepEd Subject Areas.")
+st.title("📚 Jenalyn's Master Lesson Plan Generator")
+st.caption("Produced by Jenalyn, Junior & Senior High School Specialist. Formulates data-dense, compliant DepEd Master Lesson Plans.")
 st.divider()
 
-# Sidebar Setup
+# Sidebar Configuration
 with st.sidebar:
-    st.header("⚙️ App Authentication")
+    st.header("⚙️ Credentials")
     api_key = st.text_input("Gemini API Key", type="password")
-    st.info("💡 Ensure `openpyxl` and `fpdf2` are added to your `requirements.txt` file.")
+    st.info("💡 Make sure 'openpyxl' and 'google-generativeai' are listed in your requirements.txt file.")
 
-# Universal Inputs
+# User Inputs
 col1, col2 = st.columns(2)
 with col1:
-    subject_area = st.selectbox(
-        "Subject Area / Domain", 
-        [
-            "Core Languages (Oral Com, Komunikasyon, Reading & Writing)",
-            "Mathematics (GenMath, Stat & Probability)",
-            "Natural Sciences (Earth & Life, Physical Science, Bio, Chem, Physics)",
-            "Social Sciences & Humanities (UCSP, Creative Writing, Philosophy)",
-            "Applied / Specialized Track (Inquiries, Entrepreneurship, Media Literacy)",
-            "TVL Strands (ICT, Home Economics, Industrial Arts, Agri-Fishery)",
-            "Sports and Arts & Design Tracks"
-        ]
-    )
-    grade_level = st.selectbox("Grade Level / Key Stage", ["Grade 11", "Grade 12", "Junior High School", "Elementary"])
-    topic = st.text_input("Competency / Focus Topic", placeholder="e.g., Quadratic Equations, Media Literacy, or Food Selection")
+    subject = st.text_input("Subject Area", value="Core Languages (Reading and Writing Skills)")
+    grade_level = st.selectbox("Grade Level", ["Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"])
+    melc_topic = st.text_input("MELC / Focus Topic", placeholder="e.g., Formulating Evaluative Statements")
 
 with col2:
-    st.subheader("📌 Universal Production Parameters")
-    class_size = st.slider("Estimated Class Size (For Activity Scaffolding)", min_value=10, max_value=80, value=50)
+    sessions_count = st.slider("Number of Sessions", min_value=1, max_value=5, value=5)
+    st.subheader("💡 Specialization Protocol")
+    st.caption("Ensures 100% data-dense contexts, localized examples, and text-friendly structural processing.")
 
-# Helper Function: Clean JSON String safely without relying on literal triple backtick strings
+# Helper function to remove potential code blocks from AI output safely
 def clean_json_response(text):
     text = text.strip()
     prefix = "```" + "json"
@@ -53,178 +41,160 @@ def clean_json_response(text):
         text = text[:-len(suffix)]
     return text.strip()
 
-# Helper Function: Sanitize strings to prevent Latin-1 encoding crashes in standard PDF fonts
-def sanitize_for_pdf(text):
-    if not text:
-        return ""
-    # Map common non-Latin-1/smart characters to safe equivalents
-    replacements = {
-        '\u201c': '"', '\u201d': '"',  # Smart double quotes
-        '\u2018': "'", '\u2019': "'",  # Smart single quotes
-        '\u2014': '-', '\u2013': '-',  # Em/En dashes
-        '\u2022': '*',                  # Bullet points
-        '\xf1': 'n', '\xd1': 'N',      # Spanish ñ and Ñ
-        '\u200b': '',                  # Zero-width spaces
-    }
-    for uni_char, ascii_char in replacements.items():
-        text = text.replace(uni_char, ascii_char)
-    return text.encode('latin-1', 'replace').decode('latin-1')
-
-# Helper Function: Create and Format Excel Sheets safely without code duplication
-def create_styled_sheet(workbook, title, headers, fill, font):
-    ws = workbook.active if title == "Lesson_Plan_Overview" else workbook.create_sheet(title=title)
-    ws.views.sheetView[0].showGridLines = True
-    
-    # Define clean, professional light gray borders
-    thin_border = Border(
-        left=Side(style='thin', color='D3D3D3'),
-        right=Side(style='thin', color='D3D3D3'),
-        top=Side(style='thin', color='D3D3D3'),
-        bottom=Side(style='thin', color='D3D3D3')
-    )
-    
-    if title != "Lesson_Plan_Overview":
-        for col_idx, h in enumerate(headers, 1):
-            cell = ws.cell(row=1, column=col_idx, value=h)
-            cell.font = font
-            cell.fill = fill
-            cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
-            cell.border = thin_border
-        ws.row_dimensions[1].height = 25
-    return ws
-
-# Core Execution Button
-if st.button("🚀 Generate Multi-Discipline Lesson Package Assets", type="primary"):
-    if not api_key or not topic:
-        st.warning("⚠️ Please provide your Gemini API Key and Competency Topic focus.")
+# Execution Process
+if st.button("🚀 Compile Master Lesson Plan Asset", type="primary"):
+    if not api_key or not melc_topic:
+        st.warning("⚠️ Please fill in your Gemini API Key and your targeted MELC Focus Topic.")
     else:
-        with st.spinner("🧠 Engineering specialized content structures... Please wait..."):
+        with st.spinner("🧠 Jenalyn is processing curriculum matrices and localizing contents..."):
             try:
                 genai.configure(api_key=api_key)
-                model = genai.GenerativeModel(model_name='gemini-1.5-flash', generation_config={"response_mime_type": "application/json"})
+                model = genai.GenerativeModel(
+                    model_name='gemini-1.5-flash',
+                    generation_config={"response_mime_type": "application/json"}
+                )
                 
-                # Structural schema compressed to prevent string buffer overflows
+                # Simplified and direct strict target schema
                 json_schema = {
-                    "overview": {
-                        "references": "4-5 complete sentences citing frameworks.", "ai_use": "4-5 complete sentences on AI transparency.",
-                        "content_standard": "4-5 complete sentences on conceptual standards.", "performance_standard": "4-5 sentences outlining practical skills.",
-                        "learning_competency": "4-5 sentences on targeted curriculum maps.", "objectives": "3 explicit measurable objectives.",
-                        "context": "Class size, local profile constraints.", "pre_lesson": "Diagnostic check tracking.",
-                        "resources": "Physical print material targets.", "integration": "Cross-curricular links.",
-                        "exit_ticket": "Terminal assessment rules.", "extended_learning": "Remediation and reinforcement plans."
-                    },
-                    "sessions": [
-                        {"session_num": 1, "teacher_action": "3 clear sentences.", "student_task": "3 clear sentences."},
-                        {"session_num": 2, "teacher_action": "3 clear sentences.", "student_task": "3 clear sentences."},
-                        {"session_num": 3, "teacher_action": "3 clear sentences.", "student_task": "3 clear sentences."},
-                        {"session_num": 4, "teacher_action": "3 clear sentences.", "student_task": "3 clear sentences."},
-                        {"session_num": 5, "teacher_action": "3 clear sentences.", "student_task": "3 clear sentences."}
-                    ],
-                    "cornell_notes": [{"cue": "Idea Point", "content": "3 rigorous context sentences.", "summary": "1 sentence summary."}],
-                    "glossary": [{"term": "Term Anchor", "definition": "Exactly 2 detailed definitions sentences."}],
-                    "assessments": [{"day": 1, "q": "Factual question item sentence.", "a": "Exact expected answer key response."}],
-                    "article_1": {"title": "Philippine Context Title", "body": "200-300 word narrative framework."},
-                    "article_2": {"title": "Localized Case Analysis Title", "body": "200-300 word contextual case study."}
+                    "A_References": "4-5 descriptive sentences citing curriculum guides and local textbook resources.",
+                    "B_AI_Declaration": "4-5 sentences detailing how generative AI tools assisted and structured this blueprint context safely.",
+                    "C_Content_Standard": "4-5 deep sentences explaining key concepts learners must understand.",
+                    "D_Performance_Standard": "4-5 specific sentences detailing the practical application of skill metrics.",
+                    "E_Learning_Competency": "4-5 sentences linking the target task back to standard DepEd curriculum maps.",
+                    "F_Learning_Objectives": "At least 3 highly measurable terminal performance conditions.",
+                    "G_Learning_Context": "4-5 sentences regarding cultural backdrop, class setup, and prior skill mastery.",
+                    "H_Pre_Lesson": "4-5 sentences mapping out diagnostic assessment steps or review warm-ups.",
+                    "J_Learning_Resources": "4-5 sentences mapping printed, digital, or localized real-world instructional media targets.",
+                    "K_Integration_Opportunities": "4-5 sentences connecting the topic to other subjects (e.g., Social Sciences, TVL) and real-world localized situations.",
+                    "L_Formative_Assessment": "4-5 sentences establishing a clear Exit Ticket terminal tracking activity.",
+                    "M_Extended_Learning": "4-5 sentences providing remediation pathways and specialized independent task expansion plans.",
+                    "Sessions_Flow": [
+                        {
+                            "session_number": 1,
+                            "teacher_action": "2-3 precise sentences detailing instructional methods and guidance.",
+                            "student_task": "2-3 precise sentences mapping student activities and interactive localized deliverables."
+                        }
+                    ]
                 }
                 
-                # Safer concatenation pattern to prevent f-string bracket evaluation conflicts
-                user_prompt = "Subject Area Domain: " + str(subject_area) + "\n"
-                user_prompt += "Target Learner Grade Level: " + str(grade_level) + "\n"
-                user_prompt += "Selected Instructional Topic: " + str(topic) + "\n"
-                user_prompt += "Expected Student Count: " + str(class_size) + " learners\n\n"
-                user_prompt += "Instructions: You must generate a single, dense JSON object matching the schema below. Fill out all properties fully. Do not truncate text:\n"
-                user_prompt += json.dumps(json_schema, indent=2) + "\n\n"
-                user_prompt += "REQUIRED SCALE OUT: Expand output array components to populate exactly 5 distinct sessions, 10 distinct cornell_notes entries, 15 complete glossary definitions, and 50 unique daily assessment items across days 1 to 5."
-
-                response = model.generate_content(contents=user_prompt)
+                # Dynamic safe prompt building
+                prompt = "Role: Act as Jenalyn, a Junior and Senior High School Specialist. Produce a 100% data-dense Master Lesson plan.\n"
+                prompt += f"Subject: {subject}\n"
+                prompt += f"Grade Level: {grade_level}\n"
+                prompt += f"MELC Topic Focus: {melc_topic}\n"
+                prompt += f"Target Lesson Duration: exactly {sessions_count} distinct sessions.\n\n"
+                prompt += "Instructions: Generate a single JSON object strictly using the structural schema outline provided below. Each overview key (A through M) MUST contain 4-5 fully elaborated sentences. For 'Sessions_Flow', populate exactly " + str(sessions_count) + " objects, detailing specific teacher actions (2-3 sentences) and student tasks (2-3 sentences) per session item. Apply localized Philippine contexts when appropriate.\n\n"
+                prompt += json.dumps(json_schema, indent=2)
+                
+                response = model.generate_content(contents=prompt)
                 raw_data = json.loads(clean_json_response(response.text))
                 
                 # --- EXCEL COMPILATION ---
                 wb = openpyxl.Workbook()
-                f_header = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
-                f_bold = Font(name="Calibri", size=11, bold=True)
-                f_regular = Font(name="Calibri", size=11)
-                fill_p = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
-                fill_a = PatternFill(start_color="F2DCDB", end_color="F2DCDB", fill_type="solid")
-                a_left = Alignment(horizontal="left", vertical="top", wrap_text=True)
-                thin_border = Border(
-                    left=Side(style='thin', color='D3D3D3'),
-                    right=Side(style='thin', color='D3D3D3'),
-                    top=Side(style='thin', color='D3D3D3'),
-                    bottom=Side(style='thin', color='D3D3D3')
-                )
-
-                # Tab 1: Plan Overview Setup
-                ws1 = create_styled_sheet(wb, "Lesson_Plan_Overview", [], fill_p, f_header)
-                ws1.merge_cells("A1:C1")
-                ws1["A1"] = f"LESSON OVERVIEW: {topic.upper()}"
-                ws1["A1"].font = Font(name="Calibri", size=14, bold=True, color="FFFFFF")
-                ws1["A1"].fill = fill_p
-                ws1["A1"].alignment = Alignment(horizontal="center", vertical="center")
-                ws1.row_dimensions[1].height = 40
+                ws = wb.active
+                ws.title = "Lesson_Plan_Overview"
+                ws.views.sheetView[0].showGridLines = True
                 
+                # Typographic Design Tokens (Clean, friendly, high-contrast)
+                f_title = Font(name="Segoe UI", size=14, bold=True, color="FFFFFF")
+                f_header = Font(name="Segoe UI", size=11, bold=True, color="FFFFFF")
+                f_bold = Font(name="Segoe UI", size=11, bold=True)
+                f_regular = Font(name="Segoe UI", size=11)
+                
+                fill_navy = PatternFill(start_color="1F497D", end_color="1F497D", fill_type="solid")
+                fill_ice = PatternFill(start_color="DCE6F1", end_color="DCE6F1", fill_type="solid")
+                
+                thin_border = Border(
+                    left=Side(style='thin', color='BFBFBF'),
+                    right=Side(style='thin', color='BFBFBF'),
+                    top=Side(style='thin', color='BFBFBF'),
+                    bottom=Side(style='thin', color='BFBFBF')
+                )
+                
+                # Build Master Banner Block
+                ws.merge_cells("A1:C1")
+                ws["A1"] = f"DEPED MASTER LESSON PACKAGE: {melc_topic.upper()}"
+                ws["A1"].font = f_title
+                ws["A1"].fill = fill_navy
+                ws["A1"].alignment = Alignment(horizontal="center", vertical="center")
+                ws.row_dimensions[1].height = 40
+                
+                # Row Fields Matrix Mapping
                 overview_fields = [
-                    ("A. References", "references"), ("B. Declaration of AI use", "ai_use"),
-                    ("C. Content Standard", "content_standard"), ("D. Performance Standard", "performance_standard"),
-                    ("E. Learning Competency", "learning_competency"), ("F. Learning Objectives", "objectives"),
-                    ("G. Learning Context", "context"), ("H. Pre-Lesson", "pre_lesson"),
-                    ("J. Learning Resources", "resources"), ("K. Opportunities for Integration", "integration"),
-                    ("L. Formative Assessment", "exit_ticket"), ("M. Extended Learning Activities", "extended_learning")
+                    ("A. References", "A_References"),
+                    ("B. Declaration of AI Use", "B_AI_Declaration"),
+                    ("C. Content Standard", "C_Content_Standard"),
+                    ("D. Performance Standard", "D_Performance_Standard"),
+                    ("E. Learning Competency", "E_Learning_Competency"),
+                    ("F. Learning Objectives", "F_Learning_Objectives"),
+                    ("G. Learning Context", "G_Learning_Context"),
+                    ("H. Pre-Lesson Check", "H_Pre_Lesson"),
+                    ("J. Learning Resources", "J_Learning_Resources"),
+                    ("K. Integration Links", "K_Integration_Opportunities"),
+                    ("L. Formative Assessment (Exit Ticket)", "L_Formative_Assessment"),
+                    ("M. Extended Learning Activities", "M_Extended_Learning")
                 ]
                 
                 curr_row = 3
-                for label, key in overview_fields:
-                    c1 = ws1.cell(row=curr_row, column=1, value=label)
+                for label, data_key in overview_fields:
+                    c1 = ws.cell(row=curr_row, column=1, value=label)
                     c1.font = f_bold
                     c1.border = thin_border
+                    c1.fill = fill_ice
+                    c1.alignment = Alignment(vertical="top")
                     
-                    val = raw_data.get("overview", {}).get(key, "Data incomplete.")
-                    c2 = ws1.cell(row=curr_row, column=2, value=val)
+                    val_text = raw_data.get(data_key, "Content not populated.")
+                    c2 = ws.cell(row=curr_row, column=2, value=val_text)
                     c2.font = f_regular
-                    c2.alignment = a_left
                     c2.border = thin_border
+                    c2.alignment = Alignment(wrap_text=True, vertical="top")
                     
-                    ws1.row_dimensions[curr_row].height = 65
+                    ws.row_dimensions[curr_row].height = 70
                     curr_row += 1
                 
+                # Build Flow Mapping Header Row
                 curr_row += 2
-                ws1.cell(row=curr_row, column=1, value="I. Universal Lesson Flow").font = f_bold
+                ws.merge_cells(start_row=curr_row, start_column=1, end_row=curr_row, end_column=3)
+                ws.cell(row=curr_row, column=1, value="I. DETAILED LESSON SESSIONS FLOW").font = f_bold
                 curr_row += 1
                 
-                for idx, h in enumerate(["Session Mapping", "Teacher Execution Plan", "Student Expected Task"], 1):
-                    c = ws1.cell(row=curr_row, column=idx, value=h)
+                headers = ["Session Index", "Teacher Execution Action Plan", "Student Localized Tasks"]
+                for col_idx, text in enumerate(headers, 1):
+                    c = ws.cell(row=curr_row, column=col_idx, value=text)
                     c.font = f_header
-                    c.fill = fill_p
-                    c.alignment = Alignment(horizontal="center", vertical="center")
+                    c.fill = fill_navy
                     c.border = thin_border
-                ws1.row_dimensions[curr_row].height = 25
+                    c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+                ws.row_dimensions[curr_row].height = 25
                 
-                for session in raw_data.get("sessions", []):
+                # Append Sessions Rows Flow
+                for session in raw_data.get("Sessions_Flow", []):
                     curr_row += 1
-                    c1 = ws1.cell(row=curr_row, column=1, value=f"Session {session.get('session_num', '')}")
+                    
+                    s_id = f"Session {session.get('session_number', '')}"
+                    c1 = ws.cell(row=curr_row, column=1, value=s_id)
                     c1.font = f_bold
                     c1.border = thin_border
+                    c1.alignment = Alignment(horizontal="center", vertical="top")
                     
-                    c2 = ws1.cell(row=curr_row, column=2, value=session.get('teacher_action', ''))
+                    c2 = ws.cell(row=curr_row, column=2, value=session.get('teacher_action', ''))
                     c2.font = f_regular
-                    c2.alignment = a_left
                     c2.border = thin_border
+                    c2.alignment = Alignment(wrap_text=True, vertical="top")
                     
-                    c3 = ws1.cell(row=curr_row, column=3, value=session.get('student_task', ''))
+                    c3 = ws.cell(row=curr_row, column=3, value=session.get('student_task', ''))
                     c3.font = f_regular
-                    c3.alignment = a_left
                     c3.border = thin_border
+                    c3.alignment = Alignment(wrap_text=True, vertical="top")
                     
-                    ws1.row_dimensions[curr_row].height = 60
+                    ws.row_dimensions[curr_row].height = 75
                 
-                # Tab 2: Cornell Notes
-                ws2 = create_styled_sheet(wb, "Cornell_Notes", ["Conceptual Cue", "Factual Technical Discussion", "Core Synthesis Sentence"], fill_p, f_header)
-                for r_idx, note in enumerate(raw_data.get("cornell_notes", []), 2):
-                    c1 = ws2.cell(row=r_idx, column=1, value=note.get('cue', ''))
-                    c1.font = f_bold; c1.alignment = a_left; c1.border = thin_border
-                    
-                    c2 = ws2.cell(row=r_idx, column=2, value=note.get('content', ''))
-                    c2.font = f_regular; c2.alignment = a_left; c2.border = thin_border
-                    
-                    c3 = ws2.cell(row=r_idx, column=3, value=note.get('summary', ''))
-                    c3.font = f_regular; c3.alignment
+                # Autofit column configurations safely
+                ws.column_dimensions['A'].width = 35
+                ws.column_dimensions['B'].width = 55
+                ws.column_dimensions['C'].width = 55
+                
+                # Save out data matrix
+                excel_buffer = io.BytesIO()
+                wb.save(excel_buffer)
+                excel
