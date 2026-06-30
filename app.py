@@ -197,4 +197,69 @@ if st.button("🚀 Compile Master Lesson Plan Asset", type="primary"):
                 # Save out data matrix
                 excel_buffer = io.BytesIO()
                 wb.save(excel_buffer)
+                # --- PDF COMPILATION ---
+                pdf = FPDF()
+                pdf.set_auto_page_break(auto=True, margin=15)
+                pdf.add_page()
+                
+                pdf.set_font("Helvetica", style="B", size=16)
+                pdf.cell(0, 10, sanitize_for_pdf(f"Cross-Discipline Source Index: {topic.upper()}"), ln=True, align="C")
+                pdf.set_font("Helvetica", style="I", size=10)
+                pdf.cell(0, 5, sanitize_for_pdf(f"Domain: {subject_area} | Level: {grade_level}"), ln=True, align="C")
+                pdf.ln(10)
+                
+                pdf.set_font("Helvetica", style="B", size=14)
+                pdf.cell(0, 10, "Section 1: Cornell Reference Elements", ln=True)
+                pdf.ln(2)
+                for note in raw_data.get("cornell_notes", []):
+                    pdf.set_font("Helvetica", style="B", size=11)
+                    pdf.multi_cell(0, 6, sanitize_for_pdf(f"Anchor Point: {note.get('cue', '')}"))
+                    pdf.set_font("Helvetica", size=10)
+                    pdf.multi_cell(0, 5, sanitize_for_pdf(f"Detailed Context:\n{note.get('content', '')}"))
+                    pdf.ln(4)
+                
+                pdf.set_font("Helvetica", style="B", size=14)
+                pdf.cell(0, 10, "Section 2: Domain Vocabulary Glossary", ln=True)
+                pdf.ln(2)
+                for g_item in raw_data.get("glossary", []):
+                    pdf.set_font("Helvetica", style="B", size=11)
+                    pdf.cell(40, 6, sanitize_for_pdf(f"{g_item.get('term', '')}: "), ln=False)
+                    pdf.set_font("Helvetica", size=11)
+                    pdf.multi_cell(0, 6, sanitize_for_pdf(g_item.get('definition', '')))
+                    pdf.ln(1)
+                
+                pdf.ln(5)
+                pdf.set_font("Helvetica", style="B", size=14)
+                pdf.cell(0, 10, "Section 3: Contextualized Reference Readings", ln=True)
+                pdf.ln(2)
+                
+                pdf.set_font("Helvetica", style="B", size=12)
+                pdf.multi_cell(0, 6, sanitize_for_pdf(f"Article 1: {raw_data.get('article_1', {}).get('title', '')}"))
+                pdf.ln(1)
+                pdf.set_font("Helvetica", size=10)
+                pdf.multi_cell(0, 5, sanitize_for_pdf(raw_data.get('article_1', {}).get('body', '')))
+                pdf.ln(6)
+                
+                pdf.set_font("Helvetica", style="B", size=12)
+                pdf.multi_cell(0, 6, sanitize_for_pdf(f"Article 2: {raw_data.get('article_2', {}).get('title', '')}"))
+                pdf.ln(1)
+                pdf.set_font("Helvetica", size=10)
+                pdf.multi_cell(0, 5, sanitize_for_pdf(raw_data.get('article_2', {}).get('body', '')))
+                
+                # Upgraded to modern bytes-safe buffer output compatible with new fpdf2 versions
+                pdf_bytes = pdf.output()
+                pdf_buffer = io.BytesIO(pdf_bytes)
+
+                st.success("🎉 Materials Compiled Successfully!")
+                col_dl1, col_dl2 = st.columns(2)
+                with col_dl1:
+                    st.download_button(label="📥 Download Master_Lesson_Package.xlsx", data=excel_buffer, file_name=f"Master_Package_{topic.replace(' ', '_')}.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                with col_dl2:
+                    st.download_button(label="📥 Download NotebookLM_Source_Material.pdf", data=pdf_buffer, file_name=f"NotebookLM_Material_{topic.replace(' ', '_')}.pdf", mime="application/pdf")
+                    
+            except Exception as e:
+                st.error(f"❌ Error during layout build or data parsing: {str(e)}")
+                
+                
+                
                 excel
