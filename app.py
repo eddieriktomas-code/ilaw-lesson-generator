@@ -50,31 +50,35 @@ if st.button("🚀 Compile Master Lesson Plan Asset", type="primary"):
             try:
                 genai.configure(api_key=api_key)
                 
-                # FIXED: Updated model routing naming convention to prevent 404 API version errors
+                # FIXED: Max output tokens increased to 8192 to allow huge payloads without cutting off
                 model = genai.GenerativeModel(
                     model_name='gemini-2.5-flash',
-                    generation_config={"response_mime_type": "application/json"}
+                    generation_config={
+                        "response_mime_type": "application/json",
+                        "max_output_tokens": 8192,
+                        "temperature": 0.2
+                    }
                 )
                 
-                # Simplified and direct strict target schema
+                # Direct strict target schema structure
                 json_schema = {
-                    "A_References": "4-5 descriptive sentences citing curriculum guides and local textbook resources.",
-                    "B_AI_Declaration": "4-5 sentences detailing how generative AI tools assisted and structured this blueprint context safely.",
-                    "C_Content_Standard": "4-5 deep sentences explaining key concepts learners must understand.",
-                    "D_Performance_Standard": "4-5 specific sentences detailing the practical application of skill metrics.",
-                    "E_Learning_Competency": "4-5 sentences linking the target task back to standard DepEd curriculum maps.",
-                    "F_Learning_Objectives": "At least 3 highly measurable terminal performance conditions.",
-                    "G_Learning_Context": "4-5 sentences regarding cultural backdrop, class setup, and prior skill mastery.",
-                    "H_Pre_Lesson": "4-5 sentences mapping out diagnostic assessment steps or review warm-ups.",
-                    "J_Learning_Resources": "4-5 sentences mapping printed, digital, or localized real-world instructional media targets.",
-                    "K_Integration_Opportunities": "4-5 sentences connecting the topic to other subjects (e.g., Social Sciences, TVL) and real-world localized situations.",
-                    "L_Formative_Assessment": "4-5 sentences establishing a clear Exit Ticket terminal tracking activity.",
-                    "M_Extended_Learning": "4-5 sentences providing remediation pathways and specialized independent task expansion plans.",
+                    "A_References": "4-5 concise, dense sentences citing DepEd curriculum frameworks and specific localized learning resources.",
+                    "B_AI_Declaration": "4-5 concise sentences describing the transparent utilization of foundational language models to assist with lesson scaffolding.",
+                    "C_Content_Standard": "4-5 concise sentences explaining the critical conceptual competencies and domains learners are expected to understand.",
+                    "D_Performance_Standard": "4-5 concise sentences explaining real-world performance tasks showing mastery.",
+                    "E_Learning_Competency": "4-5 concise sentences mapping the lesson plan flow straight back to DepEd MELC matrix codes.",
+                    "F_Learning_Objectives": "A single text string explicitly detailing 3 clear, concrete, measurable student learning goals.",
+                    "G_Learning_Context": "4-5 concise sentences outlining targeted class profiles, pre-requisite conditions, and localized context parameters.",
+                    "H_Pre_Lesson": "4-5 concise sentences planning diagnostic reviews, instructional warmups, or introductory tasks.",
+                    "J_Learning_Resources": "4-5 concise sentences detailing concrete instructional materials, local reference books, and multimedia tools.",
+                    "K_Integration_Opportunities": "4-5 concise sentences outlining precise cross-curricular applications and community connections.",
+                    "L_Formative_Assessment": "4-5 concise sentences designing a diagnostic exit ticket protocol for learner performance tracking.",
+                    "M_Extended_Learning": "4-5 concise sentences mapping out remediation frameworks, advanced challenges, and home reinforcement plans.",
                     "Sessions_Flow": [
                         {
                             "session_number": 1,
-                            "teacher_action": "2-3 precise sentences detailing instructional methods and guidance.",
-                            "student_task": "2-3 precise sentences mapping student activities and interactive localized deliverables."
+                            "teacher_action": "2-3 precise, direct sentences describing explicit instructional strategies and class delivery steps.",
+                            "student_task": "2-3 precise, direct sentences detailing concrete student activities and localized work outputs."
                         }
                     ]
                 }
@@ -85,7 +89,7 @@ if st.button("🚀 Compile Master Lesson Plan Asset", type="primary"):
                 prompt += f"Grade Level: {grade_level}\n"
                 prompt += f"MELC Topic Focus: {melc_topic}\n"
                 prompt += f"Target Lesson Duration: exactly {sessions_count} distinct sessions.\n\n"
-                prompt += "Instructions: Generate a single JSON object strictly using the structural schema outline provided below. Each overview key (A through M) MUST contain 4-5 fully elaborated sentences. For 'Sessions_Flow', populate exactly " + str(sessions_count) + " objects, detailing specific teacher actions (2-3 sentences) and student tasks (2-3 sentences) per session item. Apply localized Philippine contexts when appropriate.\n\n"
+                prompt += "Instructions: Generate a single JSON object strictly matching the structure of the schema below. Keep your sentences packed with relevant technical words, but brief and concise so the JSON formatting does not truncate mid-generation. For keys A through M, deliver 4-5 well-formed sentences. For 'Sessions_Flow', provide exactly " + str(sessions_count) + " objects containing teacher_action (2-3 sentences) and student_task (2-3 sentences) per session item. Ground all tasks in a localized Philippine context.\n\n"
                 prompt += json.dumps(json_schema, indent=2)
                 
                 response = model.generate_content(contents=prompt)
