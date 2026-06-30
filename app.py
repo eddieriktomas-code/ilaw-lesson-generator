@@ -1,6 +1,6 @@
 import streamlit as st
 import openpyxl
-from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+from openpyxl.styles import Font, Alignment, PatternFill
 from fpdf import FPDF
 import google.generativeai as genai
 import io
@@ -72,18 +72,11 @@ if st.button("🚀 Generate Multi-Discipline Lesson Package Assets", type="prima
             try:
                 genai.configure(api_key=api_key)
                 
-                # Using a configuration model structure to separate code from text formatting constraints
+                # Setup model structure configuration
                 model = genai.GenerativeModel(
                     model_name='gemini-1.5-flash',
                     generation_config={"response_mime_type": "application/json"}
                 )
-                
-                # System instructions separate from variables to resolve Python syntax clashes
-                system_instruction = """
-                You are a Master Teacher and Instructional Designer for the Philippine Department of Education. 
-                Generate a data-dense master lesson package. You must output raw JSON format ONLY matching the requested schema. 
-                Do not truncate text or use short summaries. Provide complete sentences for every item.
-                """
                 
                 user_prompt = f"Subject: {subject_area}\nGrade Level: {grade_level}\nTopic: {topic}\nClass Size: {class_size}\n"
                 user_prompt += """
@@ -202,50 +195,11 @@ if st.button("🚀 Generate Multi-Discipline Lesson Package Assets", type="prima
                 }
                 """
                 
-                response = model.generate_content(
-                    contents=user_prompt,
-                    generation_config={"response_mime_type": "application/json"}
-                )
-                
+                response = model.generate_content(contents=user_prompt)
                 raw_data = json.loads(clean_json_response(response.text))
                 
-                # --- FILE 1: MASTER_LESSON_PACKAGE.XLSX GENERATION ---
+                # --- FILE 1: MASTER_LESSON_PACKAGE.XLSX ---
                 wb = openpyxl.Workbook()
                 
-                # Styling configurations
-                font_title = Font(name="Calibri", size=14, bold=True, color="FFFFFF")
-                font_header = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
-                font_bold = Font(name="Calibri", size=11, bold=True)
-                font_regular = Font(name="Calibri", size=11)
-                fill_primary = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
-                fill_accent = PatternFill(start_color="F2DCDB", end_color="F2DCDB", fill_type="solid")
-                align_center = Alignment(horizontal="center", vertical="center", wrap_text=True)
-                align_left = Alignment(horizontal="left", vertical="top", wrap_text=True)
-
-                # Tab 1: Lesson_Plan_Overview
-                ws1 = wb.active
-                ws1.title = "Lesson_Plan_Overview"
-                ws1.views.sheetView[0].showGridLines = True
-                
-                ws1.merge_cells("A1:C1")
-                ws1["A1"] = f"UNIVERSAL LESSON OVERVIEW: {topic.upper()} ({grade_level})"
-                ws1["A1"].font = font_title
-                ws1["A1"].fill = fill_primary
-                ws1["A1"].alignment = align_center
-                ws1.row_dimensions[1].height = 40
-                
-                overview_fields = [
-                    ("A. References", "references"), ("B. Declaration of AI use", "ai_use"),
-                    ("C. Content Standard", "content_standard"), ("D. Performance Standard", "performance_standard"),
-                    ("E. Learning Competency", "learning_competency"), ("F. Learning Objectives", "objectives"),
-                    ("G. Learning Context", "context"), ("H. Pre-Lesson", "pre_lesson"),
-                    ("J. Learning Resources", "resources"), ("K. Opportunities for Integration", "integration"),
-                    ("L. Formative Assessment", "exit_ticket"), ("M. Extended Learning Activities", "extended_learning")
-                ]
-                
-                current_row = 3
-                for label, key in overview_fields:
-                    ws1.cell(row=current_row, column=1, value=label).font = font_bold
-                    val = raw_data.get("overview", {}).get(key, "Data generation incomplete.")
-                    ws1.cell(row=current_row, column=2, value=val).font = font_regular
-                    ws1.cell(
+                # Sheet layout styles
+                font_title = Font(name="Calibri", size=14,
