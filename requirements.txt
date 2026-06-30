@@ -1,4 +1,3 @@
 streamlit
-google-generativeai
 openpyxl
-fpdf2
+google-generativeai
